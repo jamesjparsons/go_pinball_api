@@ -21,75 +21,67 @@ func NewSeasonHandler(db *gorm.DB) *SeasonHandler {
 }
 
 // CreateSeason handles season creation
+// @Summary Create a new season
+// @Description Create a new season for a specific league
+// @Tags seasons
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param leagueID path string true "League ID"
+// @Param request body object true "Season details" {"name": "string"}
+// @Success 201 {object} ListResponse{data=SeasonResponse} "Season created successfully"
+// @Failure 400 {object} ErrorResponse "Invalid request body"
+// @Failure 401 {object} ErrorResponse "Unauthorized"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /leagues/{leagueID}/seasons [post]
 func (h *SeasonHandler) CreateSeason(c *gin.Context) {
-	// Check if user is authenticated
-	if _, exists := c.Get("userID"); !exists {
-		log.Printf("CreateSeason error - No user ID in context")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	// Get league ID from URL parameter
-	leagueIDStr := c.Param("leagueID")
-	if leagueIDStr == "" {
-		log.Printf("CreateSeason error - No league ID provided")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "League ID is required"})
+	leagueID := c.Param("leagueID")
+	if leagueID == "" {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "League ID is required"})
 		return
 	}
 
 	// Convert leagueID to uint
-	leagueID, err := strconv.ParseUint(leagueIDStr, 10, 32)
+	leagueIDUint, err := strconv.ParseUint(leagueID, 10, 32)
 	if err != nil {
-		log.Printf("CreateSeason error - Invalid league ID: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid league ID"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid league ID"})
 		return
 	}
 
-	var req struct {
-		Name string `json:"name" binding:"required"`
-	}
-
+	var req models.CreateSeasonRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Printf("CreateSeason error - Invalid request body: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	// Create the season
 	season := models.Season{
-		Name:        req.Name,
-		LeagueID:    uint(leagueID),
-		DateCreated: time.Now(),
-		// Set default values
-		CountingGames: 5,
-		EventCount:    0,
-		HasFinals:     false,
-		PointDistribution: models.PointDistributionMap{
-			"4": []float64{4, 3, 2, 1},
-			"3": []float64{4, 2.5, 1},
-		},
+		Name:              req.Name,
+		DateCreated:       time.Now(),
+		LeagueID:          uint(leagueIDUint),
+		CountingGames:     req.CountingGames,
+		EventCount:        0,
+		HasFinals:         req.HasFinals,
+		PointDistribution: make(map[string][]int),
 	}
 
 	if err := h.db.Create(&season).Error; err != nil {
-		log.Printf("CreateSeason error - Database error: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create season"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to create season"})
 		return
 	}
 
-	// Load the league information
-	if err := h.db.Preload("League").First(&season, season.ID).Error; err != nil {
-		log.Printf("CreateSeason error - Failed to load league: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create season"})
-		return
-	}
-
-	log.Printf("CreateSeason success - Season created: %s in league %d", season.Name, season.LeagueID)
-	c.JSON(http.StatusCreated, gin.H{
-		"data": season,
-	})
+	c.JSON(http.StatusCreated, season)
 }
 
 // ListSeasons handles listing all seasons for a league
+// @Summary List seasons for a league
+// @Description Get a list of all seasons for a specific league
+// @Tags seasons
+// @Produce json
+// @Param leagueID path string true "League ID"
+// @Success 200 {object} ListResponse{data=[]SeasonResponse} "List of seasons"
+// @Failure 400 {object} ErrorResponse "Invalid league ID"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /leagues/{leagueID}/seasons [get]
 func (h *SeasonHandler) ListSeasons(c *gin.Context) {
 	leagueIDStr := c.Param("leagueID")
 	if leagueIDStr == "" {

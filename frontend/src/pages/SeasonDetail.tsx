@@ -14,14 +14,14 @@ const SeasonDetail = () => {
         const fetchSeason = async () => {
             try {
                 const seasons = await seasonService.listSeasons(Number(leagueId));
-                const foundSeason = seasons.find(s => s.id === Number(seasonId));
+                const foundSeason = seasons.find(s => s.ID === Number(seasonId));
                 if (foundSeason) {
                     setSeason(foundSeason);
                 } else {
                     setError('Season not found');
                 }
             } catch (err) {
-                setError('Failed to fetch season details');
+                setError('Failed to fetch season data');
             }
         };
         fetchSeason();
@@ -56,7 +56,7 @@ const SeasonDetail = () => {
                         Season Details
                     </Typography>
                     <Typography>
-                        Created: {new Date(season.dateCreated).toLocaleDateString()}
+                        Created: {new Date(season.CreatedAt).toLocaleDateString()}
                     </Typography>
                     <Typography>
                         Events: {season.eventCount}

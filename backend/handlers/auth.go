@@ -20,6 +20,17 @@ func NewAuthHandler(db *gorm.DB) *AuthHandler {
 }
 
 // Signup handles user registration
+// @Summary Register a new user
+// @Description Create a new user account with email and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body object true "User registration details" {"email": "string", "password": "string", "firstName": "string", "lastName": "string"}
+// @Success 201 {object} AuthResponse "User created successfully"
+// @Failure 400 {object} ErrorResponse "Invalid request body"
+// @Failure 409 {object} ErrorResponse "User already exists"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /auth/signup [post]
 func (h *AuthHandler) Signup(c *gin.Context) {
 	var req struct {
 		Email     string `json:"email" binding:"required"`
@@ -86,6 +97,17 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 }
 
 // Login handles user authentication
+// @Summary Login user
+// @Description Authenticate user with email and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body object true "Login credentials" {"email": "string", "password": "string"}
+// @Success 200 {object} AuthResponse "Login successful"
+// @Failure 400 {object} ErrorResponse "Invalid request body"
+// @Failure 401 {object} ErrorResponse "Invalid credentials"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req struct {
 		Email    string `json:"email" binding:"required"`
@@ -145,6 +167,16 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
+// GetCurrentUser retrieves the current authenticated user's information
+// @Summary Get current user
+// @Description Get information about the currently authenticated user
+// @Tags auth
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} UserResponse "User information"
+// @Failure 401 {object} ErrorResponse "Unauthorized"
+// @Failure 404 {object} ErrorResponse "User not found"
+// @Router /auth/me [get]
 func (h *AuthHandler) GetCurrentUser(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -167,4 +199,4 @@ func (h *AuthHandler) GetCurrentUser(c *gin.Context) {
 		"firstName": user.FirstName,
 		"lastName":  user.LastName,
 	})
-} 
+}

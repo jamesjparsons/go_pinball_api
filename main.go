@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +13,7 @@ import (
 
 	"backend/handlers"
 	"backend/models"
+	"backend/services"
 )
 
 // @title           Pinball League API
@@ -48,14 +48,18 @@ func main() {
 	}
 
 	// Auto-migrate the schema
-	if err := db.AutoMigrate(&models.User{}, &models.League{}, &models.Season{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.League{}, &models.Season{}, &models.Machine{}); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
+
+	// Initialize services
+	opdbService := services.NewOPDBService(db)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(db)
 	leagueHandler := handlers.NewLeagueHandler(db)
 	seasonHandler := handlers.NewSeasonHandler(db)
+	machineHandler := handlers.NewMachineHandler(opdbService)
 
 	// Initialize router
 	router := gin.Default()
@@ -67,20 +71,17 @@ func main() {
 	// Public routes
 	router.POST("/api/auth/signup", authHandler.Signup)
 	router.POST("/api/auth/login", authHandler.Login)
+	router.GET("/api/leagues", leagueHandler.ListLeagues)
+	router.GET("/api/leagues/:leagueID", leagueHandler.GetLeague)
+	router.GET("/api/leagues/:leagueID/seasons", seasonHandler.ListSeasons)
+	router.GET("/api/machines/:opdb_id", machineHandler.GetMachine)
 
-	// Protected routes
+	// Protected routes - create a new group for protected routes
 	protected := router.Group("/api")
 	protected.Use(handlers.AuthMiddleware)
 	{
 		protected.GET("/auth/me", authHandler.GetCurrentUser)
-
-		// League routes
-		protected.GET("/leagues", leagueHandler.ListLeagues)
-		protected.GET("/leagues/:leagueID", leagueHandler.GetLeague)
 		protected.POST("/leagues/create", leagueHandler.CreateLeague)
-
-		// Season routes
-		protected.GET("/leagues/:leagueID/seasons", seasonHandler.ListSeasons)
 		protected.POST("/leagues/:leagueID/seasons", seasonHandler.CreateSeason)
 	}
 

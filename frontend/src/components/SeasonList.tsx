@@ -53,7 +53,7 @@ const SeasonList = ({ leagueId }: SeasonListProps) => {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {seasons.map((season) => (
                     <Paper
-                        key={season.id}
+                        key={season.ID}
                         sx={{
                             p: 2,
                             display: 'flex',
@@ -63,13 +63,13 @@ const SeasonList = ({ leagueId }: SeasonListProps) => {
                                 bgcolor: 'action.hover',
                             },
                         }}
-                        onClick={() => navigate(`/leagues/${leagueId}/seasons/${season.id}`)}
+                        onClick={() => navigate(`/leagues/${leagueId}/seasons/${season.ID}`)}
                     >
                         <Typography variant="h6" component="h3">
                             {season.name}
                         </Typography>
                         <Typography color="text.secondary" sx={{ mt: 1 }}>
-                            Created: {new Date(season.dateCreated).toLocaleDateString()}
+                            Created: {new Date(season.CreatedAt).toLocaleDateString()}
                         </Typography>
                         <Typography color="text.secondary">
                             Events: {season.eventCount}

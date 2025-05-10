@@ -14,7 +14,12 @@ const Leagues = () => {
             try {
                 const data = await leagueService.listLeagues();
                 console.log('Fetched leagues:', data); // Debug log
-                setLeagues(data);
+                if (Array.isArray(data)) {
+                    setLeagues(data);
+                } else {
+                    console.error('Invalid leagues data format:', data);
+                    setError('Invalid data format received from server');
+                }
             } catch (err) {
                 console.error('Error fetching leagues:', err); // Debug log
                 setError('Failed to fetch leagues');
@@ -25,10 +30,11 @@ const Leagues = () => {
 
     const handleLeagueClick = (league: League) => {
         console.log('Clicked league:', league); // Debug log
-        if (league) {
-            navigate(`/leagues/${league.id}`);
+        if (league && typeof league.ID === 'number') {
+            navigate(`/leagues/${league.ID}`);
         } else {
             console.error('Invalid league data:', league); // Debug log
+            setError('Invalid league data');
         }
     };
 
@@ -55,7 +61,7 @@ const Leagues = () => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     {leagues.map((league) => (
                         <Paper
-                            key={league.id}
+                            key={`league-${league.ID}`}
                             sx={{
                                 p: 2,
                                 display: 'flex',
@@ -74,7 +80,7 @@ const Leagues = () => {
                                 Location: {league.location}
                             </Typography>
                             <Typography color="text.secondary" sx={{ mt: 1 }}>
-                                Created: {new Date(league.dateCreated).toLocaleDateString()}
+                                Created: {new Date(league.CreatedAt).toLocaleDateString()}
                             </Typography>
                             <Typography color="text.secondary" sx={{ mt: 1 }}>
                                 Owner: {league.owner.firstName} {league.owner.lastName}

@@ -126,24 +126,24 @@ func (h *AuthHandler) GetCurrentUser(c *gin.Context) {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required,email" example:"user@example.com"`
+	Password string `json:"password" binding:"required" example:"password123"`
 }
 
 type LoginResponse struct {
-	Token string      `json:"token"`
-	User  models.User `json:"user"`
+	Token string             `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+	User  models.SwaggerUser `json:"user"`
 }
 
 type SignupRequest struct {
-	Email     string `json:"email" binding:"required,email"`
-	Password  string `json:"password" binding:"required,min=6"`
-	FirstName string `json:"firstName" binding:"required"`
-	LastName  string `json:"lastName" binding:"required"`
+	Email     string `json:"email" binding:"required,email" example:"user@example.com"`
+	Password  string `json:"password" binding:"required,min=6" example:"password123"`
+	FirstName string `json:"firstName" binding:"required" example:"John"`
+	LastName  string `json:"lastName" binding:"required" example:"Doe"`
 }
 
 type SignupResponse struct {
-	User models.User `json:"user"`
+	User models.SwaggerUser `json:"user"`
 }
 
 type ErrorResponse struct {

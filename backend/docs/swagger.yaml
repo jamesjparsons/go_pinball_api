@@ -1,4 +1,186 @@
 basePath: /api
+definitions:
+  handlers.AuthResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        $ref: '#/definitions/handlers.UserResponse'
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: Invalid request body
+        type: string
+    type: object
+  handlers.LeagueResponse:
+    properties:
+      createdAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      dateCreated:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      location:
+        example: 123 Main St
+        type: string
+      name:
+        example: Downtown Pinball League
+        type: string
+      owner:
+        $ref: '#/definitions/models.SwaggerUser'
+      ownerID:
+        example: 1
+        type: integer
+      updatedAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+    type: object
+  handlers.ListResponse:
+    properties:
+      data: {}
+    type: object
+  handlers.SeasonResponse:
+    properties:
+      countingGames:
+        example: 5
+        type: integer
+      createdAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      dateCreated:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      eventCount:
+        example: 0
+        type: integer
+      hasFinals:
+        example: false
+        type: boolean
+      id:
+        example: 1
+        type: integer
+      league:
+        $ref: '#/definitions/models.SwaggerLeague'
+      leagueID:
+        example: 1
+        type: integer
+      name:
+        example: Spring 2024
+        type: string
+      pointDistribution:
+        $ref: '#/definitions/models.PointDistributionMap'
+      updatedAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+    type: object
+  handlers.UserResponse:
+    properties:
+      createdAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      firstName:
+        example: John
+        type: string
+      id:
+        example: 1
+        type: integer
+      lastName:
+        example: Doe
+        type: string
+      updatedAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.Machine:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      ipdb_id:
+        type: string
+      is_alias:
+        type: boolean
+      is_group:
+        type: boolean
+      is_pinball:
+        type: boolean
+      last_updated_at:
+        type: string
+      manufacturer:
+        type: string
+      name:
+        type: string
+      opdb_id:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      year:
+        type: integer
+    type: object
+  models.PointDistributionMap:
+    additionalProperties:
+      items:
+        type: number
+      type: array
+    type: object
+  models.SwaggerLeague:
+    properties:
+      createdAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      dateCreated:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      location:
+        example: 123 Main St
+        type: string
+      name:
+        example: Downtown Pinball League
+        type: string
+      owner:
+        $ref: '#/definitions/models.SwaggerUser'
+      ownerID:
+        example: 1
+        type: integer
+      updatedAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.SwaggerUser:
+    properties:
+      createdAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      email:
+        example: user@example.com
+        type: string
+      firstName:
+        example: John
+        type: string
+      id:
+        example: 1
+        type: integer
+      lastName:
+        example: Doe
+        type: string
+      updatedAt:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -12,7 +194,307 @@ info:
   termsOfService: http://swagger.io/terms/
   title: Pinball League API
   version: "1.0"
-paths: {}
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      description: Get information about the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User information
+          schema:
+            $ref: '#/definitions/handlers.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get current user
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with email and password
+      parameters:
+      - description: User registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: User already exists
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /leagues:
+    get:
+      description: Get a list of all pinball leagues
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of leagues
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.ListResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/handlers.LeagueResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List all leagues
+      tags:
+      - leagues
+  /leagues/{leagueID}:
+    get:
+      description: Get detailed information about a specific league
+      parameters:
+      - description: League ID
+        in: path
+        name: leagueID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: League details
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.ListResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.LeagueResponse'
+              type: object
+        "400":
+          description: Invalid league ID
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get league by ID
+      tags:
+      - leagues
+  /leagues/{leagueID}/seasons:
+    get:
+      description: Get a list of all seasons for a specific league
+      parameters:
+      - description: League ID
+        in: path
+        name: leagueID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of seasons
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.ListResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/handlers.SeasonResponse'
+                  type: array
+              type: object
+        "400":
+          description: Invalid league ID
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: List seasons for a league
+      tags:
+      - seasons
+    post:
+      consumes:
+      - application/json
+      description: Create a new season for a specific league
+      parameters:
+      - description: League ID
+        in: path
+        name: leagueID
+        required: true
+        type: string
+      - description: Season details
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Season created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.ListResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.SeasonResponse'
+              type: object
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a new season
+      tags:
+      - seasons
+  /leagues/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new pinball league
+      parameters:
+      - description: League details
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: League created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.ListResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.LeagueResponse'
+              type: object
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a new league
+      tags:
+      - leagues
+  /machines/{opdb_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get machine details from OPDB API and cache in database
+      parameters:
+      - description: OPDB ID
+        in: path
+        name: opdb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Machine'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get machine details from OPDB
+      tags:
+      - machines
 securityDefinitions:
   Bearer:
     description: Type "Bearer" followed by a space and JWT token.

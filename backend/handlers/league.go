@@ -19,6 +19,18 @@ func NewLeagueHandler(db *gorm.DB) *LeagueHandler {
 }
 
 // CreateLeague handles league creation
+// @Summary Create a new league
+// @Description Create a new pinball league
+// @Tags leagues
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body object true "League details" {"name": "string", "location": "string"}
+// @Success 201 {object} ListResponse{data=LeagueResponse} "League created successfully"
+// @Failure 400 {object} ErrorResponse "Invalid request body"
+// @Failure 401 {object} ErrorResponse "Unauthorized"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /leagues/create [post]
 func (h *LeagueHandler) CreateLeague(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -64,6 +76,13 @@ func (h *LeagueHandler) CreateLeague(c *gin.Context) {
 }
 
 // ListLeagues handles listing all leagues
+// @Summary List all leagues
+// @Description Get a list of all pinball leagues
+// @Tags leagues
+// @Produce json
+// @Success 200 {object} ListResponse{data=[]LeagueResponse} "List of leagues"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /leagues [get]
 func (h *LeagueHandler) ListLeagues(c *gin.Context) {
 	var leagues []models.League
 	if err := h.db.Preload("Owner").Find(&leagues).Error; err != nil {
@@ -79,6 +98,15 @@ func (h *LeagueHandler) ListLeagues(c *gin.Context) {
 }
 
 // GetLeague handles getting a single league by ID
+// @Summary Get league by ID
+// @Description Get detailed information about a specific league
+// @Tags leagues
+// @Produce json
+// @Param leagueID path string true "League ID"
+// @Success 200 {object} ListResponse{data=LeagueResponse} "League details"
+// @Failure 400 {object} ErrorResponse "Invalid league ID"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /leagues/{leagueID} [get]
 func (h *LeagueHandler) GetLeague(c *gin.Context) {
 	leagueID := c.Param("leagueID")
 	if leagueID == "" {

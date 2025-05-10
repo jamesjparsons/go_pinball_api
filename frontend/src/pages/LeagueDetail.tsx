@@ -56,7 +56,7 @@ const LeagueDetail = () => {
 
     // Sort seasons by date created, most recent first
     const sortedSeasons = [...seasons].sort((a, b) => 
-        new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+        new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
     );
 
     // Get the most recent season as active
@@ -75,7 +75,7 @@ const LeagueDetail = () => {
                         Location: {league.location}
                     </Typography>
                     <Typography color="text.secondary" sx={{ mt: 1 }}>
-                        Created: {new Date(league.dateCreated).toLocaleDateString()}
+                        Created: {new Date(league.CreatedAt).toLocaleDateString()}
                     </Typography>
                     <Typography color="text.secondary" sx={{ mt: 1 }}>
                         Owner: {league.owner.firstName} {league.owner.lastName}
@@ -96,13 +96,13 @@ const LeagueDetail = () => {
                                     bgcolor: 'action.hover',
                                 },
                             }}
-                            onClick={() => navigate(`/leagues/${leagueId}/seasons/${activeSeason.id}`)}
+                            onClick={() => navigate(`/leagues/${league.ID}/seasons/${activeSeason.ID}`)}
                         >
                             <Typography variant="h6">
                                 {activeSeason.name}
                             </Typography>
                             <Typography color="text.secondary" sx={{ mt: 1 }}>
-                                Created: {new Date(activeSeason.dateCreated).toLocaleDateString()}
+                                Created: {new Date(activeSeason.CreatedAt).toLocaleDateString()}
                             </Typography>
                             <Typography color="text.secondary">
                                 Events: {activeSeason.eventCount}
@@ -124,7 +124,7 @@ const LeagueDetail = () => {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={() => navigate(`/leagues/${leagueId}/seasons/create`)}
+                                onClick={() => navigate(`/leagues/${league.ID}/seasons/create`)}
                             >
                                 Create New Season
                             </Button>
@@ -141,7 +141,7 @@ const LeagueDetail = () => {
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             {inactiveSeasons.map((season) => (
                                 <Paper
-                                    key={season.id}
+                                    key={season.ID}
                                     sx={{
                                         p: 2,
                                         cursor: 'pointer',
@@ -149,13 +149,13 @@ const LeagueDetail = () => {
                                             bgcolor: 'action.hover',
                                         },
                                     }}
-                                    onClick={() => navigate(`/leagues/${leagueId}/seasons/${season.id}`)}
+                                    onClick={() => navigate(`/leagues/${league.ID}/seasons/${season.ID}`)}
                                 >
                                     <Typography variant="h6">
                                         {season.name}
                                     </Typography>
                                     <Typography color="text.secondary" sx={{ mt: 1 }}>
-                                        Created: {new Date(season.dateCreated).toLocaleDateString()}
+                                        Created: {new Date(season.CreatedAt).toLocaleDateString()}
                                     </Typography>
                                     <Typography color="text.secondary">
                                         Events: {season.eventCount}

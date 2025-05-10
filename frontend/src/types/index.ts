@@ -6,17 +6,19 @@ export interface User {
 }
 
 export interface League {
-    id: number;
+    ID: number;
     name: string;
     location: string;
-    dateCreated: string;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt: string | null;
     owner: User;
 }
 
 export interface Season {
-    id: number;
+    ID: number;
     name: string;
-    dateCreated: string;
+    CreatedAt: string;
     leagueID: number;
     league: League;
     countingGames: number;
