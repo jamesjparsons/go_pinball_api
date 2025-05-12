@@ -29,6 +29,18 @@ export interface Season {
     };
 }
 
+export interface Event {
+    ID: number;
+    name: string;
+    date: string;
+    location: string;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt: string | null;
+    seasonID: number;
+    season: Season;
+}
+
 export interface AuthResponse {
     user: User;
     token: string;

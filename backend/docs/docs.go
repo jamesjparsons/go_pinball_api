@@ -328,6 +328,141 @@ const docTemplate = `{
                 }
             }
         },
+        "/leagues/{leagueID}/players": {
+            "get": {
+                "description": "Get a list of all players in a specific league",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "leagues"
+                ],
+                "summary": "List players in a league",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "League ID",
+                        "name": "leagueID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of players",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handlers.ListResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handlers.PlayerResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid league ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/leagues/{leagueID}/players/ifpa": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Add multiple players to a league using their IFPA numbers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "leagues"
+                ],
+                "summary": "Add players to league by IFPA numbers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "League ID",
+                        "name": "leagueID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "IFPA numbers",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Players added successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handlers.ListResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handlers.PlayerResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or league ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/leagues/{leagueID}/seasons": {
             "get": {
                 "description": "Get a list of all seasons for a specific league",
@@ -458,6 +593,223 @@ const docTemplate = `{
                 }
             }
         },
+        "/leagues/{leagueID}/seasons/{seasonID}/events": {
+            "get": {
+                "description": "Get a list of all events for a specific season",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "List events for a season",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "League ID",
+                        "name": "leagueID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Season ID",
+                        "name": "seasonID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of events",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handlers.ListResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handlers.EventResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid league ID or season ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new event for a specific season",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "League ID",
+                        "name": "leagueID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Season ID",
+                        "name": "seasonID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Event details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Event created successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handlers.ListResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.EventResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/leagues/{leagueID}/seasons/{seasonID}/events/{eventID}": {
+            "get": {
+                "description": "Get detailed information about a specific event",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get event by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "League ID",
+                        "name": "leagueID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Season ID",
+                        "name": "seasonID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event details",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handlers.ListResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handlers.EventResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid league ID, season ID, or event ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Event not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/machines/{opdb_id}": {
             "get": {
                 "description": "Get machine details from OPDB API and cache in database",
@@ -507,6 +859,53 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/seasons/{seasonID}": {
+            "get": {
+                "description": "Get detailed information about a specific season",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "seasons"
+                ],
+                "summary": "Get a season by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Season ID",
+                        "name": "seasonID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Season details",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SeasonResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid season ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Season not found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -528,6 +927,53 @@ const docTemplate = `{
                 "error": {
                     "type": "string",
                     "example": "Invalid request body"
+                }
+            }
+        },
+        "handlers.EventResponse": {
+            "type": "object",
+            "properties": {
+                "completedAt": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "groupOrdering": {
+                    "$ref": "#/definitions/models.GroupOrdering"
+                },
+                "hasWinnersGroup": {
+                    "type": "boolean"
+                },
+                "isComplete": {
+                    "type": "boolean"
+                },
+                "isFinals": {
+                    "type": "boolean"
+                },
+                "machines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Machine"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "players": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Player"
+                    }
+                },
+                "season": {
+                    "$ref": "#/definitions/models.Season"
+                },
+                "seasonID": {
+                    "type": "integer"
+                },
+                "seedingMethod": {
+                    "$ref": "#/definitions/models.SeedingMethod"
                 }
             }
         },
@@ -571,6 +1017,23 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "data": {}
+            }
+        },
+        "handlers.PlayerResponse": {
+            "type": "object",
+            "properties": {
+                "ifpaNumber": {
+                    "type": "string"
+                },
+                "league": {
+                    "$ref": "#/definitions/models.League"
+                },
+                "leagueID": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
             }
         },
         "handlers.SeasonResponse": {
@@ -649,17 +1112,46 @@ const docTemplate = `{
                 }
             }
         },
+        "models.GroupOrdering": {
+            "type": "string",
+            "enum": [
+                "RANDOM",
+                "SEEDED"
+            ],
+            "x-enum-varnames": [
+                "GroupOrderingRandom",
+                "GroupOrderingSeeded"
+            ]
+        },
+        "models.League": {
+            "type": "object",
+            "properties": {
+                "dateCreated": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "ownerID": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Machine": {
             "type": "object",
             "properties": {
                 "created_at": {
+                    "description": "LastUpdatedAt time.Time ` + "`" + `json:\"last_updated_at\"` + "`" + `",
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "ipdb_id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "is_alias": {
                     "type": "boolean"
@@ -669,12 +1161,6 @@ const docTemplate = `{
                 },
                 "is_pinball": {
                     "type": "boolean"
-                },
-                "last_updated_at": {
-                    "type": "string"
-                },
-                "manufacturer": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -689,7 +1175,25 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "year": {
+                    "description": "Manufacturer  string    ` + "`" + `json:\"manufacturer\"` + "`" + `",
                     "type": "integer"
+                }
+            }
+        },
+        "models.Player": {
+            "type": "object",
+            "properties": {
+                "ifpaNumber": {
+                    "type": "string"
+                },
+                "league": {
+                    "$ref": "#/definitions/models.League"
+                },
+                "leagueID": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -701,6 +1205,53 @@ const docTemplate = `{
                     "type": "number"
                 }
             }
+        },
+        "models.Season": {
+            "type": "object",
+            "properties": {
+                "countingGames": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dateCreated": {
+                    "type": "string"
+                },
+                "eventCount": {
+                    "type": "integer"
+                },
+                "hasFinals": {
+                    "type": "boolean"
+                },
+                "league": {
+                    "$ref": "#/definitions/models.League"
+                },
+                "leagueID": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pointDistribution": {
+                    "$ref": "#/definitions/models.PointDistributionMap"
+                }
+            }
+        },
+        "models.SeedingMethod": {
+            "type": "string",
+            "enum": [
+                "AVERAGE",
+                "RANK",
+                "RANDOM",
+                "IFPA_RANK"
+            ],
+            "x-enum-varnames": [
+                "SeedingMethodAverage",
+                "SeedingMethodRank",
+                "SeedingMethodRandom",
+                "SeedingMethodIFPARank"
+            ]
         },
         "models.SwaggerLeague": {
             "type": "object",
@@ -764,6 +1315,26 @@ const docTemplate = `{
                 "updatedAt": {
                     "type": "string",
                     "example": "2024-01-01T00:00:00Z"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "leagues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.League"
+                    }
                 }
             }
         }

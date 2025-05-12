@@ -6,12 +6,12 @@ import (
 )
 
 type User struct {
-	gorm.Model
-	Email        string `json:"email" gorm:"unique"`
-	Password     string `json:"-"` // The "-" tag means this field won't be included in JSON
-	FirstName    string `json:"firstName"`
-	LastName     string `json:"lastName"`
-	Leagues      []League `gorm:"foreignKey:OwnerID"`
+	gorm.Model `swaggerignore:"true"`
+	Email      string   `json:"email" gorm:"unique"`
+	Password   string   `json:"-"` // The "-" tag means this field won't be included in JSON
+	FirstName  string   `json:"firstName"`
+	LastName   string   `json:"lastName"`
+	Leagues    []League `gorm:"foreignKey:OwnerID"`
 }
 
 // SetPassword hashes the password and stores it
@@ -28,4 +28,4 @@ func (u *User) SetPassword(password string) error {
 func (u *User) CheckPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil
-} 
+}

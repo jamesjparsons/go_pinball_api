@@ -1,4 +1,5 @@
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import React from 'react';
+import { AppBar, Box, Button, Container, Toolbar, Typography } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,7 +8,7 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
-    const { isAuthenticated, logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -16,20 +17,27 @@ const Layout = ({ children }: LayoutProps) => {
     };
 
     return (
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Pinball League Manager
+                        <RouterLink to="/" style={{ color: 'white', textDecoration: 'none' }}>
+                            Pinball League Manager
+                        </RouterLink>
                     </Typography>
-                    {isAuthenticated ? (
+                    {user ? (
                         <>
-                            <Button color="inherit" component={RouterLink} to="/leagues">
+                            <Button
+                                color="inherit"
+                                component={RouterLink}
+                                to="/leagues"
+                                sx={{ mr: 2 }}
+                            >
                                 Leagues
                             </Button>
-                            <Button color="inherit" component={RouterLink} to="/leagues/create">
-                                Create League
-                            </Button>
+                            <Typography sx={{ mr: 2 }}>
+                                {user.email}
+                            </Typography>
                             <Button color="inherit" onClick={handleLogout}>
                                 Logout
                             </Button>
@@ -46,9 +54,9 @@ const Layout = ({ children }: LayoutProps) => {
                     )}
                 </Toolbar>
             </AppBar>
-            <Box component="main" sx={{ p: 3 }}>
+            <Container component="main" sx={{ mt: 4, mb: 4, flex: 1 }}>
                 {children}
-            </Box>
+            </Container>
         </Box>
     );
 };

@@ -7,7 +7,7 @@ import (
 )
 
 type Event struct {
-	gorm.Model
+	gorm.Model      `swaggerignore:"true"`
 	Name            string        `json:"name" gorm:"not null"`
 	Date            time.Time     `json:"date" gorm:"not null"`
 	Players         []Player      `json:"players" gorm:"many2many:event_players;"`

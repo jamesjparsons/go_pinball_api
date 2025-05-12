@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
 	_ "backend/docs"
@@ -62,11 +61,15 @@ func main() {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
+	// Initialize services
+	opdbService := services.NewOPDBService(db)
+	ifpaService := services.NewIFPAService()
+
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(db)
-	leagueHandler := handlers.NewLeagueHandler(db)
+	leagueHandler := handlers.NewLeagueHandler(db, ifpaService)
 	seasonHandler := handlers.NewSeasonHandler(db)
-	opdbService := services.NewOPDBService(db)
+	eventHandler := handlers.NewEventHandler(db)
 	machineHandler := handlers.NewMachineHandler(opdbService)
 
 	// Initialize router
@@ -82,7 +85,12 @@ func main() {
 	router.GET("/api/leagues", leagueHandler.ListLeagues)
 	router.GET("/api/leagues/:leagueID", leagueHandler.GetLeague)
 	router.GET("/api/leagues/:leagueID/seasons", seasonHandler.ListSeasons)
+	router.GET("/api/leagues/:leagueID/players", leagueHandler.ListPlayers)
+	router.GET("/api/seasons/:seasonID", seasonHandler.GetSeason)
+	router.GET("/api/seasons/:seasonID/events", eventHandler.ListEvents)
+	router.GET("/api/events/:eventID", eventHandler.GetEvent)
 	router.GET("/api/machines/:opdb_id", machineHandler.GetMachine)
+
 	// Protected routes
 	protected := router.Group("/api")
 	protected.Use(handlers.AuthMiddleware)
@@ -90,8 +98,11 @@ func main() {
 		protected.GET("/auth/me", authHandler.GetCurrentUser)
 		// League routes
 		protected.POST("/leagues/create", leagueHandler.CreateLeague)
+		protected.POST("/leagues/:leagueID/add_players_by_ifpa", leagueHandler.AddPlayersByIFPA)
 		// Season routes
-		protected.POST("/leagues/:leagueID/seasons", seasonHandler.CreateSeason)
+		protected.POST("/leagues/:leagueID/seasons/create", seasonHandler.CreateSeason)
+		// Event routes
+		protected.POST("/seasons/:seasonID/events/create", eventHandler.CreateEvent)
 	}
 
 	// Swagger documentation endpoint
@@ -103,8 +114,9 @@ func main() {
 		port = "8080"
 	}
 
+	// Start server
 	log.Printf("Server starting on port %s", port)
-	if err := http.ListenAndServe(":"+port, router); err != nil {
+	if err := router.Run(":" + port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

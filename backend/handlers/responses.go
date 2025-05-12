@@ -23,6 +23,16 @@ type SeasonResponse struct {
 	models.SwaggerSeason
 }
 
+// EventResponse represents the event data in API responses
+type EventResponse struct {
+	models.Event
+}
+
+// PlayerResponse represents the player data in API responses
+type PlayerResponse struct {
+	models.Player
+}
+
 // ErrorResponse represents an error response
 type ErrorResponse struct {
 	Error string `json:"error" example:"Invalid request body"`

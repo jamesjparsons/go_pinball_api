@@ -2,12 +2,14 @@ package models
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Machine struct {
-	ID     uint   `json:"id" gorm:"primaryKey"`
-	OPDBID string `json:"opdb_id" gorm:"uniqueIndex;not null"`
-	Name   string `json:"name"`
+	gorm.Model `swaggerignore:"true"`
+	OPDBID     string `json:"opdb_id" gorm:"uniqueIndex;not null"`
+	Name       string `json:"name"`
 	// Manufacturer  string    `json:"manufacturer"`
 	Year      int    `json:"year"`
 	IPDBID    int    `json:"ipdb_id"`

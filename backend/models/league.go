@@ -7,7 +7,7 @@ import (
 )
 
 type League struct {
-	gorm.Model
+	gorm.Model  `swaggerignore:"true"`
 	Name        string    `json:"name" gorm:"not null"`
 	Location    string    `json:"location" gorm:"not null"`
 	DateCreated time.Time `json:"dateCreated" gorm:"not null"`

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -61,7 +62,7 @@ func (h *SeasonHandler) CreateSeason(c *gin.Context) {
 		CountingGames:     req.CountingGames,
 		EventCount:        0,
 		HasFinals:         req.HasFinals,
-		PointDistribution: make(map[string][]int),
+		PointDistribution: make(map[string][]float64),
 	}
 
 	if err := h.db.Create(&season).Error; err != nil {
@@ -109,4 +110,42 @@ func (h *SeasonHandler) ListSeasons(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": seasons,
 	})
+}
+
+// GetSeason handles getting a season by ID
+// @Summary Get a season by ID
+// @Description Get detailed information about a specific season
+// @Tags seasons
+// @Produce json
+// @Param seasonID path string true "Season ID"
+// @Success 200 {object} SeasonResponse "Season details"
+// @Failure 400 {object} ErrorResponse "Invalid season ID"
+// @Failure 404 {object} ErrorResponse "Season not found"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /seasons/{seasonID} [get]
+func (h *SeasonHandler) GetSeason(c *gin.Context) {
+	seasonIDStr := c.Param("seasonID")
+	if seasonIDStr == "" {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Season ID is required"})
+		return
+	}
+
+	// Convert seasonID to uint
+	seasonID, err := strconv.ParseUint(seasonIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid season ID"})
+		return
+	}
+
+	var season models.Season
+	if err := h.db.Preload("League").First(&season, "id = ?", seasonID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, ErrorResponse{Error: "Season not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to fetch season"})
+		return
+	}
+
+	c.JSON(http.StatusOK, season)
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type Player struct {
-	gorm.Model
+	gorm.Model `swaggerignore:"true"`
 	Name       string `json:"name" gorm:"not null"`
 	LeagueID   uint   `json:"leagueID" gorm:"not null"`
 	League     League `json:"league" gorm:"foreignKey:LeagueID"`
